@@ -2,19 +2,15 @@ const express = require("express");
 const mongoose = require("mongoose");
 const Flow = require("./models/flow.model.js");
 const flowRoute = require("./routes/flow.route.js");
+const userRoute = require("./routes/user.route.js");
 const app = express();
+const cors = require("cors");
 const port = 3000;
 
-// middleware 
+// middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
-// routes 
-app.use("/api/flows", flowRoute);
-
-app.get("/", (req, res) => {
-  res.send("Hello, world!");
-});
+app.use(cors());
 
 mongoose
   .connect(
@@ -29,3 +25,11 @@ mongoose
   .catch(() => {
     console.log("Connection failed");
   });
+
+// routes
+app.use("/api/flows", flowRoute);
+app.use("/api/users", userRoute);
+
+app.get("/", (req, res) => {
+  res.send("Hello, world!");
+});
