@@ -33,7 +33,10 @@ const login = async (req, res) => {
     const user = await User.login(req.body.email, req.body.password);
     const accessToken = createToken(user);
     const refreshToken = createRefreshToken(user);
-    res.cookie("refreshToken", refreshToken, { httpOnly: true });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     res.status(200).json({ accessToken });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -51,14 +54,23 @@ const register = async (req, res) => {
 
     const accessToken = createToken(user);
     const refreshToken = createRefreshToken(user);
-    res.cookie("refreshToken", refreshToken, { httpOnly: true });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     res.status(200).json({ accessToken });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+const logout = (req, res) => {
+    res.clearCookie("refreshToken");
+    res.status(200).json({ message: "Logged out" });
+};
+
 module.exports = {
   login,
   register,
+  logout,
 };
