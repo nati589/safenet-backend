@@ -9,7 +9,7 @@ const authRoute = require("./routes/auth.route.js");
 const app = express();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const { authenticateToken } = require("./middleware/auth.middleware.js");
+// const { authenticateToken } = require("./middleware/auth.middleware.js");
 const verifyJWT = require("./middleware/verifyJWT.js");
 const port = process.env.PORT || 3500;
 
@@ -34,7 +34,7 @@ mongoose
 
 
 // routes
-app.use("/api/flows", authenticateToken, flowRoute);
+app.use("/api/flows", verifyJWT, flowRoute);
 app.use("/api/users", verifyJWT, userRoute);
 app.use("/api/auth", authRoute);
 

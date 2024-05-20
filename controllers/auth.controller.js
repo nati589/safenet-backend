@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const createToken = (user) => {
   return jwt.sign(
     {
-      id: user._id,
+      _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
@@ -17,7 +17,7 @@ const createToken = (user) => {
 const createRefreshToken = (user) => {
   return jwt.sign(
     {
-      id: user._id,
+      _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
@@ -64,13 +64,35 @@ const register = async (req, res) => {
   }
 };
 
+const refresh = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    console.log(refreshToken)
+    if (!refreshToken) {
+      return res.status(403).json({ message: "User not authenticated" });
+    }
+
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+      if (err) {
+        return res.status(403).json({ message: "User not authenticated" });
+      }
+
+      const accessToken = createToken(user);
+      res.status(200).json({ accessToken });
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const logout = (req, res) => {
-    res.clearCookie("refreshToken");
-    res.status(200).json({ message: "Logged out" });
+  res.clearCookie("refreshToken");
+  res.status(200).json({ message: "Logged out" });
 };
 
 module.exports = {
   login,
   register,
+  refresh,
   logout,
 };

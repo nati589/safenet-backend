@@ -9,6 +9,9 @@ router.post("/login", loginLimiter, AuthController.login);
 //register
 router.post("/register", AuthController.register);
 
+// refresh token
+router.post("/refresh", AuthController.refresh);
+
 //logout
 router.post("/logout", AuthController.logout);
 
