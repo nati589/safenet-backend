@@ -10,7 +10,7 @@ const createToken = (user) => {
       email: user.email,
     },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "15m" }
+    { expiresIn: "20s" }
   );
 };
 
@@ -33,6 +33,7 @@ const login = async (req, res) => {
     const user = await User.login(req.body.email, req.body.password);
     const accessToken = createToken(user);
     const refreshToken = createRefreshToken(user);
+    // res.cookie("accessToken", accessToken, { httpOnly: true, maxAge: 15 * 60 * 1000});
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -67,13 +68,14 @@ const register = async (req, res) => {
 const refresh = async (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken;
-    console.log(refreshToken)
+    console.log(refreshToken);
     if (!refreshToken) {
       return res.status(403).json({ message: "User not authenticated" });
     }
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
       if (err) {
+        console.log(err);
         return res.status(403).json({ message: "User not authenticated" });
       }
 
