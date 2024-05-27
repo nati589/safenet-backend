@@ -1,3 +1,4 @@
+const errorHandler = require("../middleware/errorHandler");
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 
@@ -38,8 +39,13 @@ const login = async (req, res) => {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      maxAge: 20 * 1000,
+    });
     res.status(200).json({ accessToken });
   } catch (error) {
+    errorHandler(error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -59,6 +65,10 @@ const register = async (req, res) => {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      maxAge: 20 * 1000,
+    });
     res.status(200).json({ accessToken });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -68,7 +78,6 @@ const register = async (req, res) => {
 const refresh = async (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken;
-    console.log(refreshToken);
     if (!refreshToken) {
       return res.status(403).json({ message: "User not authenticated" });
     }
@@ -80,6 +89,10 @@ const refresh = async (req, res) => {
       }
 
       const accessToken = createToken(user);
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        maxAge: 20 * 1000,
+      });
       res.status(200).json({ accessToken });
     });
   } catch (error) {
