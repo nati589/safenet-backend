@@ -22,7 +22,11 @@ const UserSchema = new mongoose.Schema(
       required: [true, "Please provide a password"],
       minlength: [8, "Password must be at least 8 characters long"],
     },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    refreshToken: {
+      type: String,
+      default: "",
+    },
+    // userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   },
   { timestamps: true }
 );

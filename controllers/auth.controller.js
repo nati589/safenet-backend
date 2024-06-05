@@ -11,7 +11,7 @@ const createToken = (user) => {
       email: user.email,
     },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "20s" }
+    { expiresIn: "15m" }
   );
 };
 
@@ -34,6 +34,11 @@ const login = async (req, res) => {
     const user = await User.login(req.body.email, req.body.password);
     const accessToken = createToken(user);
     const refreshToken = createRefreshToken(user);
+
+    // store refresh token on user model
+    user.refreshToken = refreshToken;
+    await user.save();
+
     // res.cookie("accessToken", accessToken, { httpOnly: true, maxAge: 15 * 60 * 1000});
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
@@ -41,7 +46,7 @@ const login = async (req, res) => {
     });
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      maxAge: 20 * 1000,
+      maxAge: 15 * 60 * 1000,
     });
     res.status(200).json({ accessToken });
   } catch (error) {
@@ -61,13 +66,18 @@ const register = async (req, res) => {
 
     const accessToken = createToken(user);
     const refreshToken = createRefreshToken(user);
+
+    // store refresh token on user model
+    user.refreshToken = refreshToken;
+    await user.save();
+
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      maxAge: 20 * 1000,
+      maxAge: 15 * 60 * 1000,
     });
     res.status(200).json({ accessToken });
   } catch (error) {
@@ -91,7 +101,7 @@ const refresh = async (req, res) => {
       const accessToken = createToken(user);
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
-        maxAge: 20 * 1000,
+        maxAge: 15 * 60 * 1000,
       });
       res.status(200).json({ accessToken });
     });
@@ -100,7 +110,11 @@ const refresh = async (req, res) => {
   }
 };
 
-const logout = (req, res) => {
+const logout = async (req, res) => {
+  // clear token
+  await User.findByIdAndUpdate(req.user._id, { refreshToken: "" });
+
+  res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
   res.status(200).json({ message: "Logged out" });
 };
