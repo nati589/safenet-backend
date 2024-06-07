@@ -91,6 +91,11 @@ const refresh = async (req, res) => {
     if (!refreshToken) {
       return res.status(403).json({ message: "User not authenticated" });
     }
+    // check if the refresh token on the user model matches the one in the cookie
+    const user = await User.findOne({ refreshToken });
+    if (!user || user?.refreshToken !== refreshToken) {
+      return res.status(403).json({ message: "User not authenticated" });
+    }
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
       if (err) {
@@ -119,9 +124,15 @@ const logout = async (req, res) => {
   res.status(200).json({ message: "Logged out" });
 };
 
+const protected = async (req, res) => {
+  // check if user is authenticated
+  res.status(200).json({ message: "Protected route" });
+};
+
 module.exports = {
   login,
   register,
   refresh,
   logout,
+  protected,
 };

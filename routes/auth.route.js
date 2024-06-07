@@ -16,4 +16,7 @@ router.post("/refresh", AuthController.refresh);
 //logout
 router.post("/logout", verifyJWT, AuthController.logout);
 
+//protected route
+router.get("/protected", verifyJWT, AuthController.protected);
+
 module.exports = router;
