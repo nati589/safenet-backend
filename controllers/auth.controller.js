@@ -31,6 +31,7 @@ const createRefreshToken = (user) => {
 const login = async (req, res) => {
   //login authentication
   try {
+    console.log(req.body);
     const user = await User.login(req.body.email, req.body.password);
     const accessToken = createToken(user);
     const refreshToken = createRefreshToken(user);
@@ -129,10 +130,17 @@ const protected = async (req, res) => {
   res.status(200).json({ message: "Protected route" });
 };
 
+const resetPassword = async (req, res) => {
+  // reset password using token sent to email
+
+  res.status(200).json({ message: "Password reset" });
+};
+
 module.exports = {
   login,
   register,
   refresh,
   logout,
   protected,
+  resetPassword,
 };

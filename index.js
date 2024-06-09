@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const flowRoute = require("./routes/flow.route.js");
 const userRoute = require("./routes/user.route.js");
 const authRoute = require("./routes/auth.route.js");
+const blacklistRoute = require("./routes/blacklist.route.js");
 const app = express();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
@@ -17,28 +18,6 @@ const port = process.env.PORT || 3500;
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
-// app.use(function (req, res, next) {
-//   res.setHeader("Access-Control-Allow-Origin", "*");
-//   res.setHeader("Access-Control-Allow-Credentials", "true");
-//   res.setHeader(
-//     "Access-Control-Allow-Headers",
-//     "Origin, X-Requested-With, Content-Type, Accept"
-//   );
-//   res.setHeader(
-//     "Access-Control-Allow-Methods",
-//     "GET, POST, PATCH, DELETE, OPTIONS"
-//   );
-//   next();
-//   // res.setHeader(
-//   //   "Access-Control-Allow-Headers",
-//   //   "Origin, X-Requested-With, Content-Type, Accept"
-//   // );
-//   // res.setHeader(
-//   //   "Access-Control-Allow-Methods",
-//   //   "GET, POST, PATCH, DELETE, OPTIONS"
-//   // );
-//   // next();
-// });
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -63,8 +42,32 @@ mongoose
 // routes
 app.use("/api/flows", verifyJWT, flowRoute);
 app.use("/api/users", verifyJWT, userRoute);
+app.use("/api/blacklist", verifyJWT, blacklistRoute);
 app.use("/api/auth", authRoute);
 
 app.get("/", (req, res) => {
   res.send("Hello, world!");
 });
+
+    // app.use(function (req, res, next) {
+    //   res.setHeader("Access-Control-Allow-Origin", "*");
+    //   res.setHeader("Access-Control-Allow-Credentials", "true");
+    //   res.setHeader(
+    //     "Access-Control-Allow-Headers",
+    //     "Origin, X-Requested-With, Content-Type, Accept"
+    //   );
+    //   res.setHeader(
+    //     "Access-Control-Allow-Methods",
+    //     "GET, POST, PATCH, DELETE, OPTIONS"
+    //   );
+    //   next();
+    //   // res.setHeader(
+    //   //   "Access-Control-Allow-Headers",
+    //   //   "Origin, X-Requested-With, Content-Type, Accept"
+    //   // );
+    //   // res.setHeader(
+    //   //   "Access-Control-Allow-Methods",
+    //   //   "GET, POST, PATCH, DELETE, OPTIONS"
+    //   // );
+    //   // next();
+    // });

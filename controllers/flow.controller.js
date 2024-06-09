@@ -34,24 +34,24 @@ const getOneFlow = async (req, res) => {
 };
 
 const createFlow = async (req, res) => {
-  const flow = {
-    source_ip: req.body.Flow.source_ip,
-    destination_ip: req.body.Flow.destination_ip,
-    protocol: req.body.Flow.protocol,
-    source_port: req.body.Flow.source_port,
-    destination_port: req.body.Flow.destination_port,
-    flags: req.body.Flow.flags,
-    timestamp: req.body.Flow.timestamp,
-    packet_dir: req.body.Flow.packet_dir,
-    packet_ihl: req.body.Flow.packet_ihl,
-    packet_seg: req.body.Flow.packet_seg,
-    Attack_type: req.body.Attack_type,
-    Mechanism: req.body.Mechanism,
-    user: req.user._id,
-  };
+  // const flow = {
+  //   source_ip: req.body.Flow.source_ip,
+  //   destination_ip: req.body.Flow.destination_ip,
+  //   protocol: req.body.Flow.protocol,
+  //   source_port: req.body.Flow.source_port,
+  //   destination_port: req.body.Flow.destination_port,
+  //   flags: req.body.Flow.flags,
+  //   timestamp: req.body.Flow.timestamp,
+  //   packet_dir: req.body.Flow.packet_dir,
+  //   packet_ihl: req.body.Flow.packet_ihl,
+  //   packet_seg: req.body.Flow.packet_seg,
+  //   Attack_type: req.body.Attack_type,
+  //   Mechanism: req.body.Mechanism,
+  //   user: req.user._id,
+  // };
+  console.log(req.body);
   try {
-    await Flow.create(flow);
-    console.log(req.body);
+    // await Flow.create(req.body);
     // res.status(200).json(flow);
     res.status(200).json({ message: "Flow created" });
   } catch (error) {

@@ -26,7 +26,23 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    // userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    role: {
+      type: String,
+      default: "user",
+      enum: ["user", "admin"],
+    },
+    status: {
+      type: String,
+      default: "inactive",
+      enum: ["active", "inactive"],
+    },
+    admin: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      null: true,
+      default: null,
+      // required: true,
+    },
   },
   { timestamps: true }
 );
@@ -65,6 +81,8 @@ UserSchema.statics.signup = async function (
     lastName,
     email,
     password: hashedPassword,
+    role: "admin",
+    status: "active",
   });
 
   return user;

@@ -19,4 +19,7 @@ router.post("/logout", verifyJWT, AuthController.logout);
 //protected route
 router.get("/protected", verifyJWT, AuthController.protected);
 
+// reset password
+router.post("/resetPassword", AuthController.resetPassword);
+
 module.exports = router;
