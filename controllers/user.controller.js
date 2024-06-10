@@ -11,6 +11,15 @@ const getUsers = async (req, res) => {
   }
 };
 
+const getAdminUsers = async (req, res) => {
+  try {
+    const users = await User.find({ admin: req.user._id });
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
 const getOneUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -107,9 +116,28 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const createUser = async (req, res) => {
+  try {
+    console.log(req.body);
+    res.status(200).json({ message: "User created" });
+    // const user = new User(req.body);
+    // const email = await User.findOne({ email: req.body.email });
+    // if (email) {
+    //   return res.status(400).json({ message: "Email already exists" });
+    // }
+    // await user.save();
+    // res.status(201).json(user);
+  }
+  catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
 module.exports = {
   getUsers,
+  getAdminUsers,
   getOneUser,
+  createUser,
   updateName,
   updateEmail,
   updatePassword,
