@@ -1,6 +1,8 @@
 const errorHandler = require("../middleware/errorHandler");
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
+const validator = require("validator");
+const bcrypt = require("bcrypt");
 
 const createToken = (user) => {
   return jwt.sign(
@@ -9,6 +11,7 @@ const createToken = (user) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      role: user.role,
     },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: "15m" }
@@ -22,6 +25,7 @@ const createRefreshToken = (user) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      role: user.role,
     },
     process.env.REFRESH_TOKEN_SECRET,
     { expiresIn: "7d" }
@@ -33,6 +37,10 @@ const login = async (req, res) => {
   try {
     console.log(req.body);
     const user = await User.login(req.body.email, req.body.password);
+
+    if (user.status === "inactive") {
+      return res.status(403).json({ message: "User not activated" });
+    }
     const accessToken = createToken(user);
     const refreshToken = createRefreshToken(user);
 
@@ -92,9 +100,9 @@ const refresh = async (req, res) => {
     if (!refreshToken) {
       return res.status(403).json({ message: "User not authenticated" });
     }
-    // check if the refresh token on the user model matches the one in the cookie
-    const user = await User.findOne({ refreshToken });
-    if (!user || user?.refreshToken !== refreshToken) {
+
+    const user = await User.find({ refreshToken });
+    if (!user[0] || user[0]?.refreshToken !== refreshToken) {
       return res.status(403).json({ message: "User not authenticated" });
     }
 
@@ -103,7 +111,6 @@ const refresh = async (req, res) => {
         console.log(err);
         return res.status(403).json({ message: "User not authenticated" });
       }
-
       const accessToken = createToken(user);
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
@@ -131,9 +138,40 @@ const protected = async (req, res) => {
 };
 
 const resetPassword = async (req, res) => {
-  // reset password using token sent to email
-
-  res.status(200).json({ message: "Password reset" });
+  // reset password using token sent to email in query
+  try {
+    // first decode jwt and get user id
+    const decoded = jwt.verify(
+      req.params.resetToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+    console.log(decoded._id);
+    const user = await User.findById(decoded._id);
+    console.log(user);
+    // then update password
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (!validator.isStrongPassword(req.body.newPassword)) {
+      return res.status(400).json({
+        message:
+          "Password must be at least 8 characters long and have a number",
+      });
+    }
+    if (req.body.newPassword !== req.body.confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(req.body.newPassword, salt);
+    user.password = hashedPassword;
+    if ( req.params.isFirstTime === 'true') {
+      user.status = 'active'
+    }
+    await user.save();
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    return res.status(401).json({ message: "User not authenticated" });
+  }
 };
 
 module.exports = {

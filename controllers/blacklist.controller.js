@@ -2,20 +2,24 @@ const Blacklist = require("../models/blacklist.model");
 const Notification = require("../models/notification.model");
 const nodemailer = require("nodemailer");
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "",
-    pass: "",
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: process.env.EMAIL_ADDRESS,
+//     pass: process.env.EMAIL_PASSWORD,
+//   },
+// });
 
 // Controller function to create a new blacklist entry
 const createBlacklistEntry = async (req, res) => {
   try {
     console.log(req.body);
+    if (!req.body?.Flow) {
+      return res.status(400).json({ error: "Flow data is required" });
+    }
     const userId = req?.user?._id;
-    const adminId = req?.user?.admin;
+    // const adminId = req?.user?.admin;
+    // console.log(userId, adminId);
 
     // check if IP exists on blacklist
     const exists = await Blacklist.findOne({
@@ -23,9 +27,6 @@ const createBlacklistEntry = async (req, res) => {
     });
 
     if (exists) {
-      return res
-        .status(200)
-        .json({ message: "IP already exists on blacklist" });
       // const notificationExists = await Notification.findOne({
       //   blacklistId: exists._id,
       // });
@@ -45,10 +46,10 @@ const createBlacklistEntry = async (req, res) => {
       // });
       // const admin = await User.findById(adminId);
       // const mailOptions = {
-      //   from: "your-email@gmail.com",
+      //   from: "safenetd@gmail.com",
       //   to: admin.email,
       //   subject: "Network Attack Detected",
-      //   text: `Attack detected from IP: ${req.body?.Flow?.source_ip} of type ${req.body?.Attack_type} and mechanism ${req.body?.Mechanism}`,
+      //   text: `Attack detected from IP: ${req.body?.Flow?.source_ip} of Attack Type ${req.body?.attack_type} and Mechanism: ${req.body?.mechanism}`,
       // };
 
       // transporter.sendMail(mailOptions, function (error, info) {
@@ -59,33 +60,32 @@ const createBlacklistEntry = async (req, res) => {
       //   }
       // });
 
-      // return res.status(400).json({ error: "IP already exists on blacklist" });
+      return res.status(400).json({ error: "IP already exists on blacklist" });
     }
     // Create a new blacklist entry
     await Blacklist.create({
       user: userId,
-      admin: adminId,
-      ...req.body,
-      //   source_ip: { type: String },
-      //   destination_ip: { type: String },
-      //   protocol: { type: String },
-      //   source_port: { type: Number },
-      //   destination_port: { type: Number },
+      // admin: adminId,
+      ...req.body?.Flow,
+      attack_type: req.body?.attack_type,
+      mechanism: req.body?.mechanism,
+      // time: req.body?.time,
     });
 
     res.status(200).json({ message: "Blacklist entry created" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to create blacklist entry" });
+    res.status(500).json({ message: error.message });
   }
 };
 
 // Controller function to get blacklist by user id
 const getBlacklistByUserId = async (req, res) => {
   try {
-    const userId = req?.user?.admin;
-    const admin = req.admin ? req.user._id : userId;
+    const user = req.user._id;
+    // const userId = req?.user?.admin;
+    // const admin = req.admin ? req.user._id : userId;
     // Find the blacklist entries by user id
-    const blacklist = await Blacklist.find({ admin });
+    const blacklist = await Blacklist.find({ user });
 
     res.status(200).json(blacklist);
   } catch (error) {

@@ -1,7 +1,8 @@
 // verify admin middleware
 const verifyAdmin = async (req, res, next) => {
   try {
-    req.admin = req.user.role === "admin";
+    // console.log(req.user);
+    req.admin = req?.user.role === "admin";
     if (!req.admin) {
       return res.status(401).json({ message: "User does not have privileges" });
     }

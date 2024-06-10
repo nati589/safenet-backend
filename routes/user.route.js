@@ -7,6 +7,7 @@ router.get("/", UserController.getUsers);
 router.get("/admin", verifyAdmin, UserController.getAdminUsers);
 router.get("/:id", UserController.getOneUser);
 router.post("/createUser", verifyAdmin, UserController.createUser);
+router.post("/toggleUser/:id", verifyAdmin, UserController.toggleUser);
 router.post("/updateName", UserController.updateName);
 router.post("/updatePassword", UserController.updatePassword);
 router.post("/updateEmail", UserController.updateEmail);

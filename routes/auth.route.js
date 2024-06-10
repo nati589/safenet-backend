@@ -20,6 +20,6 @@ router.post("/logout", verifyJWT, AuthController.logout);
 router.get("/protected", verifyJWT, AuthController.protected);
 
 // reset password
-router.post("/resetPassword", AuthController.resetPassword);
+router.post("/resetPassword/:resetToken/:isFirstTime", AuthController.resetPassword);
 
 module.exports = router;

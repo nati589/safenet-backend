@@ -12,8 +12,8 @@ const FlowSchema = new mongoose.Schema(
     packet_dir: [{ type: String }],
     packet_ihl: [{ type: Number }],
     packet_seg: [{ type: Number }],
-    Attack_type: { type: String },
-    Mechanism: { type: String },
+    // Attack_type: { type: String },
+    // Mechanism: { type: String },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // Reference to User model
   },
   { timestamps: true }

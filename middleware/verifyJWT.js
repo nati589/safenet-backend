@@ -9,10 +9,12 @@ const verifyJWT = async (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-        req.user = await User.findById(decoded._id);
-        // const user = await User.findOne({ where: { _id: decoded._id } });
-        next();
+      const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+      // console.log(decoded._id);
+      req.user = await User.findById(decoded._id);
+      // console.log(req.user);
+      // const user = await User.findOne({ where: { _id: decoded._id } });
+      next();
     } catch (error) {
         console.log(error);
         return res.status(401).json({ message: "User not authenticated" });

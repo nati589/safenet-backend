@@ -8,11 +8,12 @@ const BlacklistSchema = new mongoose.Schema(
     source_port: { type: Number },
     destination_port: { type: Number },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // Reference to User model
-    admin: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    // admin: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     entry: { type: String, default: "system", enum: ["system", "admin"] },
-    Attack_type: { type: String },
-    Mechanism: { type: String },
+    attack_type: { type: String },
+    mechanism: { type: String },
     timestamp: { type: Number },
+    // time: { type: Number },
   },
   { timestamps: true }
 );
