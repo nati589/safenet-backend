@@ -2,13 +2,13 @@ const Blacklist = require("../models/blacklist.model");
 const Notification = require("../models/notification.model");
 const nodemailer = require("nodemailer");
 
-// const transporter = nodemailer.createTransport({
-//   service: "gmail",
-//   auth: {
-//     user: process.env.EMAIL_ADDRESS,
-//     pass: process.env.EMAIL_PASSWORD,
-//   },
-// });
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_ADDRESS,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
 
 // Controller function to create a new blacklist entry
 const createBlacklistEntry = async (req, res) => {
@@ -17,48 +17,50 @@ const createBlacklistEntry = async (req, res) => {
     if (!req.body?.Flow) {
       return res.status(400).json({ error: "Flow data is required" });
     }
+    console.log(1);
     const userId = req?.user?._id;
-    // const adminId = req?.user?.admin;
+    console.log(2);
+    const adminId = req?.user?.admin;
     // console.log(userId, adminId);
 
     // check if IP exists on blacklist
     const exists = await Blacklist.findOne({
       source_ip: req.body?.Flow?.source_ip,
     });
-
+    console.log(3);
     if (exists) {
-      // const notificationExists = await Notification.findOne({
-      //   blacklistId: exists._id,
-      // });
+      const notificationExists = await Notification.findOne({
+        blacklistId: exists._id,
+      });
 
-      // if (notificationExists) {
-      //   return res.status(400).json({
-      //     error: "Notification already exists for this blacklist entry",
-      //   });
-      // }
-      // await Notification.create({
-      //   title: "Blacklist Entry",
-      //   message: "Blacklist entry already exists",
-      //   user: userId,
-      //   admin: adminId,
-      //   link: "/blacklist",
-      //   blacklist: exists._id,
-      // });
-      // const admin = await User.findById(adminId);
-      // const mailOptions = {
-      //   from: "safenetd@gmail.com",
-      //   to: admin.email,
-      //   subject: "Network Attack Detected",
-      //   text: `Attack detected from IP: ${req.body?.Flow?.source_ip} of Attack Type ${req.body?.attack_type} and Mechanism: ${req.body?.mechanism}`,
-      // };
-
-      // transporter.sendMail(mailOptions, function (error, info) {
-      //   if (error) {
-      //     console.log(error);
-      //   } else {
-      //     console.log("Email sent: " + info.response);
-      //   }
-      // });
+      if (notificationExists) {
+        return res.status(400).json({
+          error: "Notification already exists for this blacklist entry",
+        });
+      }
+      await Notification.create({
+        title: "Blacklist Entry",
+        message: "Blacklist entry already exists",
+        user: userId,
+        admin: adminId,
+        link: "/blacklist",
+        blacklist: exists._id,
+      });
+      const admin = await User.findById(adminId);
+      const mailOptions = {
+        from: "safenetd@gmail.com",
+        to: admin.email,
+        subject: "Network Attack Detected",
+        text: `Attack detected from IP: ${req.body?.Flow?.source_ip} of Attack Type ${req.body?.attack_type} and Mechanism: ${req.body?.mechanism}`,
+      };
+      console.log(4);
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log("Email sent: " + info.response);
+        }
+      });
 
       return res.status(400).json({ error: "IP already exists on blacklist" });
     }
